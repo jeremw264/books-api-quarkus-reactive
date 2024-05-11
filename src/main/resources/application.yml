@@ -1,1 +1,23 @@
-{}
+quarkus:
+  application:
+    name: books-api
+
+  log:
+    level: INFO
+    category:
+      "com.jeremw.bookstore":
+        level: DEBUG
+
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+
+  smallrye-openapi:
+    info-title: Books API
+    info-description: This API allows CRUD operations on a books
+    info-version: 1.0
+    info-contact-name: Jérémy Woirhaye
+  http:
+    cors:
+      ~: true
+      origins: "*"
