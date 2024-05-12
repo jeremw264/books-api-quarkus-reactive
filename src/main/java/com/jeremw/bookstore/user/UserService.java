@@ -5,6 +5,7 @@ import java.util.List;
 import com.jeremw.bookstore.exception.ResourceException;
 import com.jeremw.bookstore.user.dto.CreateUserForm;
 import com.jeremw.bookstore.user.dto.UpdateUserForm;
+import com.jeremw.bookstore.util.PBKDF2Encoder;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
@@ -19,9 +20,12 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class UserService {
 
+	private final PBKDF2Encoder pbkdf2Encoder;
+
 	private final UserRepository userRepository;
 
-	public UserService(UserRepository userRepository) {
+	public UserService(PBKDF2Encoder pbkdf2Encoder, UserRepository userRepository) {
+		this.pbkdf2Encoder = pbkdf2Encoder;
 		this.userRepository = userRepository;
 	}
 
@@ -36,11 +40,19 @@ public class UserService {
 				.failWith(() -> new ResourceException("UserNotFound", "User not found with id: " + userId, Response.Status.NOT_FOUND));
 	}
 
+	public Uni<User> getUserByUsername(final String username){
+		Log.debugf("Get user by username : %s", username);
+		return userRepository.findByUsername(username).onItem().ifNull()
+				.failWith(() -> new ResourceException("UserNotFound", "User not found with username : " + username, Response.Status.NOT_FOUND));
+
+	}
+
 	@WithTransaction
 	public Uni<User> createUser(final CreateUserForm createUserForm) {
 		Log.debug("Create a new user.");
 		return Uni.createFrom().item(() -> User.builder()
 						.username(createUserForm.getUsername())
+						.password(pbkdf2Encoder.encode(createUserForm.getPassword()))
 						.email(createUserForm.getEmail())
 						.build()
 				).onItem().transformToUni(user -> userRepository.persist(user))
@@ -55,7 +67,7 @@ public class UserService {
 			if (updateUserForm.getEmail() != null)
 				user.setEmail(updateUserForm.getEmail());
 			if (updateUserForm.getPassword() != null) {
-				user.setPassword(updateUserForm.getPassword());
+				user.setPassword(pbkdf2Encoder.encode(updateUserForm.getPassword()));
 			}
 			return userRepository.persist(user);
 		});

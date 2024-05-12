@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jeremw.bookstore.book.dto.CreateBookForm;
 import com.jeremw.bookstore.book.dto.UpdateBookForm;
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.DELETE;
@@ -34,28 +35,33 @@ public class BookResource {
 		this.bookService = bookService;
 	}
 
+	@Authenticated
 	@GET
 	public Uni<RestResponse<List<Book>>> getAllBooks() {
 		return bookService.getAllBooks().map(books -> RestResponse.status(Status.OK, books));
 	}
 
+	@Authenticated
 	@GET
 	@Path("/{bookId}")
 	public Uni<RestResponse<Book>> getBookById(@PathParam("bookId") Long bookId) {
 		return bookService.getBookById(bookId).map(book -> RestResponse.status(Status.OK, book));
 	}
 
+	@Authenticated
 	@POST
 	public Uni<RestResponse<Book>> createBook(@Valid CreateBookForm createBookForm) {
 		return bookService.createBook(createBookForm).map(book -> RestResponse.status(Status.CREATED, book));
 	}
 
+	@Authenticated
 	@PATCH
 	@Path("/{bookId}")
 	public Uni<RestResponse<Book>> updateBookById(@PathParam("bookId") Long bookId, UpdateBookForm updateBookForm) {
 		return bookService.updateBookById(bookId, updateBookForm).map(book -> RestResponse.status(Status.OK, book));
 	}
 
+	@Authenticated
 	@DELETE
 	@Path("/{bookId}")
 	public Uni<RestResponse<Void>> deleteBookById(@PathParam("bookId") Long bookId) {

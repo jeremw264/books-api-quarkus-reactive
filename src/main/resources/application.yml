@@ -7,6 +7,10 @@ quarkus:
     category:
       "com.jeremw.bookstore":
         level: DEBUG
+  native:
+    resources:
+      includes:
+        publicKey: publicKey.pem
 
   hibernate-orm:
     database:
@@ -21,3 +25,27 @@ quarkus:
     cors:
       ~: true
       origins: "*"
+      access-control-allow-credentials: true
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: publicKey.pem
+    issuer: https://example.com/issuer
+
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: privateKey.pem
+
+auth:
+  jwt:
+    access-token:
+      expiration: 60000
+  password:
+    secret: secret
+    iteration: 33
+    key-length: 256

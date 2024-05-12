@@ -7,6 +7,7 @@ import com.jeremw.bookstore.user.dto.UpdateUserForm;
 import com.jeremw.bookstore.user.dto.UserDto;
 import com.jeremw.bookstore.user.util.UserMapper;
 import io.quarkus.logging.Log;
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -42,7 +43,7 @@ public class UserResource {
 		this.userService = userService;
 	}
 
-	@PermitAll
+	@Authenticated
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -63,7 +64,7 @@ public class UserResource {
 	 * @param id The ID of the user to retrieve
 	 * @return A Uni emitting a RestResponse containing the user DTO
 	 */
-	@PermitAll
+	@Authenticated
 	@GET
 	@Path("/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -82,6 +83,7 @@ public class UserResource {
 	 * @param createUserForm The form containing user data
 	 * @return A Uni emitting a RestResponse containing the created user DTO
 	 */
+	@Authenticated
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -92,7 +94,7 @@ public class UserResource {
 				.map(user -> RestResponse.ResponseBuilder.ok(user).build());
 	}
 
-	@PermitAll
+	@Authenticated
 	@PUT
 	@Path("/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -104,7 +106,7 @@ public class UserResource {
 				.map(user -> RestResponse.ResponseBuilder.ok(user).build());
 	}
 
-	@PermitAll
+	@Authenticated
 	@DELETE
 	@Path("/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
